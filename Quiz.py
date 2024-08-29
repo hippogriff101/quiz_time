@@ -4,8 +4,13 @@ import time
 time.sleep(1)
 print("Hello World!")
 
-text = "Welcome to HangMan..."
+text = "Welcome to QuizTime..."
 lives = 3
+timesplayed = 0
+roundslost = 0
+roundswon = 0
+anscor = 0
+answro = 0
 
 # Easy questions and answers
 easy_ques = [
@@ -49,29 +54,30 @@ impossible_ques = [
 impossible_answers = [False, False]
 
 def game():
-    global lives, easy_answers, easy_ques, medium_answers, medium_ques, hard_answers, hard_ques, impossible_answers, impossible_ques
+    global lives, anscor, answro, roundslost, roundswon, timesplayed, easy_answers, easy_ques, medium_answers, medium_ques, hard_answers, hard_ques, impossible_answers, impossible_ques
     
     while True:
         mode = input("What mode would you like to play? (easy, medium, hard or impossible): ").lower()
 
-        questions_left = 5
-
         if mode == "easy":
             quest = easy_ques
             answers = easy_answers
+            questions_left = len(easy_ques)
             break
         elif mode == "medium":
             quest = medium_ques
             answers = medium_answers
+            questions_left = len(medium_ques)
             break
         elif mode == "hard":
             quest = hard_ques
             answers = hard_answers
+            questions_left = len(hard_ques)
             break
         elif mode == "impossible":
             quest = impossible_ques
             answers = impossible_answers
-            questions_left = 2
+            questions_left = len(impossible_ques)
             break
         else:
             print("Invalid mode. Please choose again.")
@@ -86,24 +92,78 @@ def game():
     time.sleep(1)
     print("GO!")
 
+    timesplayed += 1
+    lives = 3  # Reset lives to 3 for each game
+    questions_answered = 0
+
     # Loop through questions
     for i in range(questions_left):
         if lives == 0:
             print("You're out of lives! Game Over!")
+            roundslost += 1
             break
 
         print(f"Question {i + 1}: {quest[i]}")
-        guess = input("True or False: ").strip().lower().capitalize()
+        guess = input("True or False: ").strip().capitalize()
 
-        if guess == str(answers[i]):
+        # Ensure guess is correctly compared with answers
+        if (guess == "True" and answers[i]) or (guess == "False" and not answers[i]):
+            anscor += 1
             print("Correct!")
         else:
             print("Incorrect!")
+            answro += 1
             lives -= 1
             print(f"Lives left: {lives}")
 
-    if lives > 0:
-        print("Congratulations, you completed the quiz!")
+        questions_answered += 1
 
-# Run the game
-game()
+    if questions_answered == questions_left and lives > 0:
+        print("Congratulations, you completed the quiz!")
+        roundswon += 1
+    elif lives == 3:
+        print("WOW!!!! You got 0 questions wrong.")
+        roundswon += 1
+
+# Welcome message
+time.sleep(1)
+for char in text:
+    print(char, end='', flush=True)
+    time.sleep(0.1)
+
+print("\n")
+time.sleep(1)
+print(" The aim of the game is to: ")
+time.sleep(1)
+print("1. Answer questions based on difficulty.")
+time.sleep(1)
+print("2. Gain points for each correct answer.")
+time.sleep(1)
+print("3. When you close the game, via the end screen, get your very own 'score' document.")
+time.sleep(1)
+print("\nLet's Play...")
+
+# Main loop to play again
+while True:
+    game()
+    
+    with open("Scores.txt", "w") as file:
+        file.write("Thank you for playing Quiz Time:\n")
+        file.write("You can look at more projects like this on my GitHub profile:\n")
+        file.write("\nhttps://github.com/hippogriff101\n\n")
+        file.write("Thank you to arcade for the opportunity to advance my coding knowledge.\n")
+        file.write("Find this on the repo called 'quiz_time'.\n\n")
+        file.write(f"Scores:\nTimes Played: {timesplayed}\nRounds Won: {roundswon}\nRounds Lost: {roundslost}\n")
+        file.write(f"Questions Correct: {anscor}\nQuestions Wrong: {answro}\n")
+
+    print("\n")
+    playagain = input("Do you want to play again? (yes/no): ").lower()
+
+    if playagain == "yes":
+        continue
+    elif playagain == "no":
+        print("Thanks for playing!")
+        print("\n")
+        break
+    else:
+        print("Sorry, what's that?")
